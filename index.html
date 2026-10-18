@@ -1,0 +1,1234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comparador de generación aislada</title>
+<style>
+/* Base */
+:root{
+    font-family:Arial,Helvetica,sans-serif;
+    color:#24303c;
+    background:#f4f6f8
+}
+*{
+    box-sizing:border-box
+}
+body{
+    margin:0
+}
+header{
+    background:#fff;
+    border-bottom:1px solid #dbe1e6;
+    padding:22px max(24px,calc((100% - 1280px)/2))
+}
+h1{
+    font-size:23px;
+    font-weight:600;
+    margin:0 0 6px
+}
+h2{
+    font-size:17px;
+    margin:0 0 15px;
+    font-weight:600
+}
+h3{
+    font-size:15px;
+    margin:0 0 12px
+}
+p{
+    line-height:1.5
+}
+.muted,small{
+    color:#687583;
+    font-size:12px
+}
+.wrap{
+    max-width:1280px;
+    margin:22px auto;
+    padding:0 18px
+}
+.top,.machine{
+    display:grid;
+    grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);
+    gap:16px;
+    margin-bottom:16px
+}
+.panel{
+    background:#fff;
+    border:1px solid #dce2e8;
+    border-radius:7px;
+    padding:20px;
+    min-width:0
+}
+.fields{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:13px
+}
+.fields.two{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+}
+label{
+    display:block;
+    font-size:12px;
+    color:#495765;
+    margin-bottom:5px
+}
+input,select{
+    width:100%;
+    border:1px solid #c9d2da;
+    border-radius:4px;
+    padding:9px 10px;
+    background:white;
+    color:#1d2a36;
+    font-size:14px
+}
+input:focus,select:focus{
+    outline:2px solid #a4b9cb;
+    outline-offset:1px
+}
+button{
+    border:1px solid #a8b7c4;
+    border-radius:4px;
+    padding:9px 13px;
+    background:#fff;
+    color:#243747;
+    font-size:13px;
+    cursor:pointer
+}
+button:hover{
+    background:#eef2f5
+}
+.primary{
+    background:#244a65;
+    color:white;
+    border-color:#244a65
+}
+.primary:hover{
+    background:#193b54
+}
+.danger{
+    color:#9a3e36;
+    border-color:#d6b3b0
+}
+.toolbar,.heading{
+    display:flex;
+    gap:9px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap
+}
+/* Encabezados de equipos */
+.equipment-heading{
+    padding:10px 12px;
+    border-radius:5px;
+    margin:-6px -6px 14px;
+    color:#fff
+}
+.equipment-heading h2{
+    margin:0;
+    color:#fff
+}
+.equipment-heading .danger{
+    background:#fff;
+    border-color:rgba(255,255,255,.75);
+    color:#7d3430
+}
+.equipment-heading .danger:hover{
+    background:#f5f5f5
+}
+.toolbar{
+    margin-top:14px
+}
+.note{
+    font-size:12px;
+    color:#667481;
+    margin:12px 0 0;
+    line-height:1.5
+}
+.metrics{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px
+}
+.metric{
+    padding:11px;
+    border:1px solid #e0e6ea;
+    border-radius:4px
+}
+.metric .value{
+    font-size:20px;
+    font-weight:600;
+    margin-top:6px;
+    overflow-wrap:anywhere
+}
+.metric .caption{
+    font-size:11px;
+    color:#657481
+}
+.results-table{
+    border-collapse:collapse;
+    width:100%;
+    margin-top:14px;
+    font-size:12px
+}
+th,td{
+    border-bottom:1px solid #e1e6eb;
+    text-align:right;
+    padding:9px 6px
+}
+th:first-child,td:first-child{
+    text-align:left
+}
+th{
+    font-weight:600;
+    color:#4b5c69
+}
+.empty{
+    padding:28px 10px;
+    text-align:center;
+    color:#74818c
+}
+.tag{
+    font-size:12px;
+    background:#edf2f5;
+    border-radius:3px;
+    padding:5px 8px;
+    color:#405466
+}
+.full{
+    grid-column:1/-1
+}
+.compare{
+    overflow-x:auto
+}
+#graph, #powerGraph{
+    width:100%;
+    height:300px;
+    border:1px solid #e3e7eb;
+    border-radius:4px
+}
+#graph svg, #powerGraph svg{
+    display:block;
+    width:100%;
+    height:100%
+}
+.legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:9px;
+    font-size:12px
+}
+.swatch{
+    display:inline-block;
+    width:12px;
+    height:3px;
+    vertical-align:middle;
+    margin-right:6px
+}
+.error{
+    color:#a13b36;
+    font-size:12px;
+    margin-top:9px
+}
+.field-error{
+    color:#a13b36;
+    font-size:11px;
+    margin-top:5px
+}
+.invalid{
+    border-color:#b35a52!important;
+    outline-color:#d7aaa6!important
+}
+.hidden{
+    display:none
+}
+.add{
+    border:1px dashed #aebdc8;
+    border-radius:6px;
+    padding:17px;
+    background:#fff;
+    margin:16px 0
+}
+.add-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap
+}
+.subtitle{
+    margin:0;
+    font-size:13px;
+    color:#687583
+}
+.info{
+    border-left:3px solid #b9c9d5;
+    padding-left:11px;
+    margin-top:12px
+}
+.file{
+    display:none
+}
+.year-control{
+    margin:0 0 15px
+}
+.year-control label{
+    font-size:13px;
+    margin-bottom:8px
+}
+.year-control input[type=range]{
+    padding:0;
+    accent-color:#244a65;
+    cursor:pointer
+}
+.interval-fields{
+    display:flex;
+    gap:12px;
+    margin:8px 0
+}
+.interval-fields>div{
+    max-width:145px
+}
+.interval-sliders{
+    display:grid;
+    gap:6px
+}
+/* Coeficientes mensuales */
+.monthly-details{
+    margin-top:16px;
+    border:1px solid #dce2e8;
+    border-radius:5px;
+    padding:11px 12px
+}
+.monthly-details summary{
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    color:#465869
+}
+.monthly-details .fields{
+    margin-top:12px
+}
+.monthly-details .note{
+    margin-top:8px
+}
+.monthly-details .month-info{
+    color:#657481;
+    font-size:12px;
+    margin:10px 0 0
+}
+/* Adaptación para pantallas chicas */
+@media(max-width:900px){
+    .top,.machine{
+        grid-template-columns:1fr
+    }
+}
+@media(max-width:620px){
+    .fields,.fields.two{
+        grid-template-columns:1fr 1fr
+    }
+    .wrap{
+        padding:0 10px
+    }
+    .panel{
+        padding:15px
+    }
+    .metrics{
+        grid-template-columns:1fr 1fr
+    }
+}
+@media(max-width:420px){
+    .fields,.fields.two{
+        grid-template-columns:1fr
+    }
+}
+ /* Salida a PDF / impresión */
+@media print{
+    @page{
+        size:A4;
+        margin:12mm
+    }
+    :root{
+        background:white
+    }
+    body{
+        background:white;
+        color:#111;
+        font-size:10pt
+    }
+    header{
+        padding:0 0 12px;
+        border-color:#aaa
+    }
+    .wrap{
+        max-width:none;
+        margin:10px 0;
+        padding:0
+    }
+    .panel{
+        border:1px solid #bbb;
+        box-shadow:none;
+        break-inside:avoid;
+        padding:12px
+    }
+    .machine{
+        grid-template-columns:1.25fr 1fr;
+        gap:10px;
+        break-inside:avoid
+    }
+    .fields{
+        grid-template-columns:repeat(3,1fr)
+    }
+    .fields.two{
+        grid-template-columns:repeat(2,1fr)
+    }
+    input{
+        border:0;
+        border-bottom:1px solid #ddd;
+        padding:4px 0;
+        font-size:10pt;
+        color:#111
+    }
+    button,.add,#newType,#counter,.toolbar,.danger,#pdfButton,#saveButton,#loadButton,.file{
+        display:none!important
+    }
+    .heading{
+        display:block
+    }
+    #graph, #powerGraph{
+        height:230px
+    }
+    .results-table{
+        font-size:9pt
+    }
+    .note{
+        font-size:9pt
+    }
+    .metric .value{
+        font-size:14pt
+    }
+    section{
+        break-inside:avoid
+    }
+    .year-control input{
+        display:none
+    }
+    .monthly-details > .fields, .monthly-details > .note, .monthly-details > .month-info{
+        display:grid!important
+    }
+    .monthly-details > .note,.monthly-details > .month-info{
+        display:block!important
+    }
+    .print-hide{
+        display:none!important
+    }
+}
+</style>
+</head>
+<body>
+<header><h1>Comparador económico de generación aislada</h1><p class="subtitle">Evaluación de equipos solares, eólicos y grupos electrógenos</p></header>
+<main class="wrap">
+<section class="panel" style="margin-bottom:16px"><h2>Variables del lugar</h2><div id="siteFields" class="fields"></div></section>
+<div class="heading"><h2>Equipos</h2><span id="counter" class="muted"></span></div>
+<div id="machines"></div>
+<section class="add"><h3>Agregar equipo</h3><div class="add-controls"><select id="newType" style="max-width:260px"><option value="solar">Panel fotovoltaico</option><option value="wind">Aerogenerador</option><option value="diesel">Grupo electrógeno</option></select><button class="primary" id="addButton">Agregar equipo</button></div></section>
+<section class="panel" style="margin-bottom:16px"><h2>Comparación económica</h2><p class="note" style="margin:0 0 10px">El costo inicial es el precio de adquisición; el costo total incorpora los gastos de operación considerados para cada equipo. Los resultados a 3 y 10 años solo se presentan dentro de su vida útil.</p><div class="compare"><table class="results-table" id="comparison"><thead><tr><th>Equipo</th><th>Horizonte</th><th>Energía acumulada (kWh)</th><th>Costo inicial</th><th>Costo total acumulado</th><th>Costo/kWh</th><th>Potencia media mínima mensual (kW)</th></tr></thead><tbody></tbody></table></div></section>
+<section class="panel" style="margin-bottom:16px"><div class="heading"><h2>Evolución del costo por energía</h2><span class="muted">Moneda/kWh</span></div><div class="year-control"><label>Intervalo del gráfico (años)</label><div class="interval-fields"><div><label for="yearStart">Desde</label><input id="yearStart" type="number" min="0" step="any" value="0"></div><div><label for="yearEnd">Hasta</label><input id="yearEnd" type="number" min="0" step="any" value="25"></div></div><div class="interval-sliders"><input id="startSlider" aria-label="Inicio del intervalo" type="range" min="0" max="25" value="0" step="0.01"><input id="endSlider" aria-label="Fin del intervalo" type="range" min="0" max="25" value="25" step="0.01"></div><small id="intervalHint">Elegí el inicio y el final del período.</small></div><div class="interval-fields"><div style="max-width:240px"><label for="graphCeiling">Límite máximo del eje vertical (moneda/kWh)</label><input id="graphCeiling" type="number" min="0" step="any" value="500"></div></div><small>Los valores superiores al límite no se dibujan. Esto permite evaluar los costos de manera más precisa, evitando que los valores extremos distorsionen la escala del gráfico.</small><div id="graph"></div><div id="legend" class="legend"></div></section>
+<section class="panel" style="margin-bottom:16px"><div class="heading"><h2>Evolución de la potencia media mensual</h2><span class="muted">kW</span></div><p class="note" style="margin:0 0 12px">Cada tramo corresponde a la potencia media del mes (Pₘ). En solar se incluye la degradación a lo largo de los años. Utiliza el mismo intervalo temporal del gráfico económico; los grupos electrógenos no se incluyen.</p><div id="powerGraph"></div><div id="powerLegend" class="legend"></div></section>
+<section class="panel"><div class="heading print-hide"><h2>Guardar y recuperar</h2><div class="toolbar" style="margin:0"><button id="saveButton">Guardar comparación (.json)</button><button id="loadButton">Abrir comparación (.json)</button><button class="primary" id="pdfButton">Guardar en PDF</button><input class="file" id="fileInput" type="file" accept=".json,application/json"></div></div><p class="note print-hide">El archivo JSON permite editar la comparación más adelante. Para obtener el PDF, seleccioná «Guardar como PDF» en la ventana de impresión.</p><div class="info"><p class="note"><strong>Alcance:</strong> la comparación considera exclusivamente los costos directamente asociados a cada equipo. No se incluyen sistemas de almacenamiento, instalación, mantenimiento ni otros equipos complementarios. Los resultados buscan comparar equipos, no dimensionar un sistema energético en su totalidad.</p></div></section>
+</main>
+<script>
+'use strict';
+
+// Campos disponibles y estado general
+const siteSchema=[
+    ['gti', 'GTI anual (kWh/m²·año)', 1600, 0.01],
+    ['temp', 'Temperatura ambiente media (°C)', 12, null],
+    ['windMean', 'Velocidad media del viento a 10 m (m/s)', 5.5, 0.01],
+    ['rough', 'Rugosidad del terreno z₀ (m)', 0.03, 0.00001]
+];
+const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const daysPerMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
+const monthKeys=months.map((_,i)=>`km${i+1}`);
+const monthSchema=months.map((month,i)=>[`km${i+1}`, month, 1, 0]);
+const daysBeforeMonth=[0];
+for(const days of daysPerMonth)daysBeforeMonth.push(daysBeforeMonth.at(-1)+days);
+const schemas={
+    solar:[
+        ['name', 'Identificación', 'Panel solar'],
+        ['area', 'Superficie del panel (m²)', 2.1, 0.001],
+        ['eta', 'Eficiencia STC (%)', 21.4, 0.01],
+        ['gamma', 'Coef. térmico de potencia (%/°C)', -0.35, null],
+        ['noct', 'NOCT (°C)', 45, 0.01],
+        ['guaranteeYield', 'Rendimiento garantizado Rₜ (%)', 80, 0.001],
+        ['guaranteeYears', 'Años de garantía tᵣ', 30, 0.001],
+        ['price', 'Precio de adquisición (moneda)', 280000, 0],
+        ['life', 'Vida útil (años)', 25, 0.01],
+    ],
+    wind:[
+        ['name', 'Identificación', 'Aerogenerador'],
+        ['pn', 'Potencia nominal (kW)', 2, 0.001],
+        ['vci', 'Velocidad de arranque (m/s)', 3, 0],
+        ['vr', 'Velocidad nominal (m/s)', 11, 0.01],
+        ['vco', 'Velocidad de corte (m/s)', 25, 0.01],
+        ['height', 'Altura del rotor (m)', 18, 0.01],
+        ['price', 'Precio de adquisición (moneda)', 3500000, 0],
+        ['life', 'Vida útil (años)', 20, 0.01],
+    ],
+    diesel:[
+        ['name', 'Identificación', 'Grupo electrógeno'],
+        ['pn', 'Potencia nominal de servicio (kW)', 5, 0.001],
+        ['q', 'Consumo a potencia nominal (L/h)', 1.7, 0],
+        ['hours', 'Horas de operación anuales (h/año)', 1500, 0.01],
+        ['maxHours', 'Vida útil (horas de funcionamiento)', 15000, 0.01],
+        ['fuelPrice', 'Precio combustible del grupo (moneda/L)', 1200, 0],
+        ['vehiclePrice', 'Precio combustible del vehículo (moneda/L)', 1200, 0],
+        ['distance', 'Distancia al abastecimiento, ida (km)', 50, 0],
+        ['vehicleUse', 'Consumo del vehículo (L/100 km)', 10, 0],
+        ['tripVolume', 'Combustible transportado por viaje (L)', 200, 0.01],
+        ['price', 'Precio de adquisición (moneda)', 1500000, 0]
+    ]
+};
+// La variación estacional pertenece al recurso del lugar, no a cada equipo.
+const emptyMonthly=()=>Object.fromEntries(monthKeys.map(key=>[key,null]));
+let state= {
+    site:Object.fromEntries(siteSchema.map(s=>[s[0], null])),
+    monthly:{solar:emptyMonthly(), wind:emptyMonthly()},
+    machines:[], nextId:1, serials:{solar:0, wind:0, diesel:0}
+};
+let graphStart=0, graphEnd=null, graphCeiling=500, graphAvailableMax=1;
+const $=id=>document.getElementById(id);
+const nf=(x, d=2)=>Number.isFinite(x)?x.toLocaleString('es-AR', {
+    maximumFractionDigits:d, minimumFractionDigits:0
+}):'—';
+// Construcción de formularios
+function createInput(schema, obj, group) {
+    const [key, label, defaultVal, min]=schema;
+    const wrap=document.createElement('div');
+    const lbl=document.createElement('label');
+    lbl.textContent=label;
+    const inp=document.createElement('input');
+    inp.type=typeof defaultVal==='number'?'number':'text';
+    if(inp.type==='number') {
+        inp.step='any';
+        if(min!==null)inp.min=String(min);
+    }
+    inp.value=obj[key]===null||obj[key]===undefined||Number.isNaN(obj[key])?'':obj[key];
+    inp.addEventListener('input', ()=> {
+        obj[key]=inp.type==='number'?(inp.value===''?NaN:Number(inp.value)):inp.value; renderResults();
+    });
+    wrap.append(lbl, inp);
+    return wrap;
+}
+// Un cambio de Km se refleja en los formularios de todos los equipos del mismo tipo.
+function createMonthlyInput(type, schema) {
+    const wrap=createInput(schema, state.monthly[type]);
+    const field=wrap.querySelector('input');
+    field.dataset.monthType=type;
+    field.dataset.monthKey=schema[0];
+    field.placeholder='Estimado: 1';
+    field.addEventListener('input', () => {
+        document.querySelectorAll('input[data-month-type="'+type+'"]')
+            .forEach(other => {
+                if(other!==field && other.dataset.monthKey===schema[0]) {
+                    other.value=field.value;
+                }
+            });
+        updateMonthlyInfo(type);
+    });
+    return wrap;
+}
+function updateMonthlyInfo(type) {
+    const series=monthlyCoefficients(state.monthly[type]);
+    let message;
+    if(series.error) {
+        message=series.error;
+    } else if(series.count===0) {
+        message='Sin datos mensuales: los doce coeficientes se consideran iguales a 1.';
+    } else if(series.assumed===0) {
+        message='Doce coeficientes ingresados. Promedio anual ponderado: 1.';
+    } else {
+        message=`${series.count} de 12 coeficientes ingresados; los ${series.assumed} restantes se estiman en ${nf(series.inferred, 5)}.`;
+    }
+    document.querySelectorAll('[data-month-info="'+type+'"]').forEach(el=>el.textContent=message);
+    document.querySelectorAll('input[data-month-type="'+type+'"]').forEach(field=> {
+        const idx=monthKeys.indexOf(field.dataset.monthKey);
+        field.placeholder=series.error?'Sin estimación':`Estimado: ${nf(series.values[idx],5)}`;
+    });
+}
+function renderBase() {
+    $('siteFields').replaceChildren();
+    siteSchema.forEach(s=>$('siteFields').append(createInput(s, state.site)));
+}
+const typeNames= {
+    solar:'Panel solar', wind:'Aerogenerador', diesel:'Grupo electrógeno'
+};
+function normalizedName(value) {
+    return String(value??'').trim().toLocaleLowerCase('es-AR');
+}
+function nameInUse(value, id) {
+    const key=normalizedName(value);
+    return key!==''&&state.machines.some(x=>x.id!==id&&normalizedName(x.data.name)===key);
+}
+function makeMachine(type) {
+    const id=state.nextId++;
+    const obj=Object.fromEntries(schemas[type].map(s=>[s[0], null]));
+    state.serials[type]=(state.serials[type]||0)+1;
+    obj.name=`${typeNames[type]} ${state.serials[type]}`;
+    while(nameInUse(obj.name, id)) {
+        state.serials[type]++;
+        obj.name=`${typeNames[type]} ${state.serials[type]}`;
+    }
+    state.machines.push({
+        id, type, data:obj
+    });
+    renderMachines();
+}
+function createNameInput(m, h) {
+    const wrap=document.createElement('div');
+    const lbl=document.createElement('label');
+    lbl.textContent='Identificación';
+    const inp=document.createElement('input');
+    inp.type='text';
+    inp.value=m.data.name||'';
+    const msg=document.createElement('div');
+    msg.className='field-error';
+    msg.hidden=true;
+    const clearError=()=> {
+        inp.classList.remove('invalid');
+        msg.hidden=true;
+        msg.textContent='';
+    };
+    inp.addEventListener('input', ()=> {
+        const proposed=inp.value; if(nameInUse(proposed, m.id)) {
+            inp.classList.add('invalid'); msg.hidden=false; msg.textContent='Ese nombre ya está en uso.'; return;
+        }
+        clearError(); m.data.name=proposed; h.textContent=proposed.trim()||typeNames[m.type]; renderResults();
+    });
+    inp.addEventListener('blur', ()=> {
+        if(inp.classList.contains('invalid')) {
+            inp.value=m.data.name||''; clearError();
+        }
+    });
+    wrap.append(lbl, inp, msg);
+    return wrap;
+}
+function renderMachines() {
+    const root=$('machines');
+    root.replaceChildren();
+    $('counter').textContent=`${state.machines.length} equipo(s)`;
+    state.machines.forEach((m, i)=> {
+        const row=document.createElement('div'); row.className='machine'; const left=document.createElement('section'); left.className='panel'; const right=document.createElement('section'); right.className='panel'; const heading=document.createElement('div'); heading.className='heading equipment-heading'; heading.style.background=colors[i%colors.length]; const h=document.createElement('h2'); h.textContent=m.data.name||typeNames[m.type]; const controls=document.createElement('div'); controls.className='toolbar'; controls.style.margin='0'; const del=document.createElement('button'); del.className='danger'; del.textContent='Eliminar'; del.onclick=()=> {
+            state.machines=state.machines.filter(x=>x.id!==m.id); renderMachines()
+        }; controls.append(del); heading.append(h, controls); left.append(heading); const fields=document.createElement('div'); fields.className='fields two'; schemas[m.type].forEach(s=> {
+            if(monthKeys.includes(s[0]))return;
+            if(s[0]==='name')fields.append(createNameInput(m, h)); else fields.append(createInput(s, m.data));
+        }); left.append(fields);
+        if(m.type==='solar'||m.type==='wind') {
+            const details=document.createElement('details');
+            details.className='monthly-details';
+            const summary=document.createElement('summary');
+            summary.textContent='Variación mensual del recurso (Km)';
+            details.append(summary);
+            const help=document.createElement('p');
+            help.className='month-info';
+            help.dataset.monthInfo=m.type;
+            details.append(help);
+            const monthFields=document.createElement('div');
+            monthFields.className='fields';
+            monthSchema.forEach(s=>monthFields.append(createMonthlyInput(m.type, s)));
+            details.append(monthFields);
+            const info=document.createElement('p');
+            info.className='note';
+            info.textContent='Los meses vacíos reciben todos el mismo valor, calculado para que el promedio anual ponderado por días sea 1. No se modifican los coeficientes ingresados. Los equipos del mismo tipo comparten los datos.';
+            details.append(info);
+            left.append(details);
+            updateMonthlyInfo(m.type);
+        }
+        const rh=document.createElement('h2'); rh.textContent=`Resultados ${i+1}`; right.append(rh); const content=document.createElement('div'); content.id=`res-${m.id}`; right.append(content); row.append(left, right); root.append(row);
+    });
+    renderResults();
+}
+// Los Km ingresados quedan fijos. A todos los meses faltantes se les asigna
+// el mismo valor para que la media ponderada por días sea exactamente 1.
+function monthlyCoefficients(data) {
+    const raw=monthKeys.map(key=>data?.[key]);
+    if(raw.some(value=>Number.isFinite(value)&&value<0)) {
+        return {error:'Los coeficientes mensuales Km no pueden ser negativos.'};
+    }
+    const entered=raw.map(Number.isFinite);
+    const count=entered.filter(Boolean).length;
+    const assumed=12-count;
+    const sumEntered=raw.reduce((sum,value,i)=>
+        sum+(entered[i]?value*daysPerMonth[i]:0),0);
+    const daysMissing=daysPerMonth.reduce((sum,days,i)=>
+        sum+(entered[i]?0:days),0);
+    // No se renormalizan los Km proporcionados por el usuario.
+    if(assumed===0) {
+        if(Math.abs(sumEntered-365)>1e-7) {
+            return {error:'Los doce coeficientes ingresados deben cumplir Σ(Dm × Km) = 365. Corregí alguno de ellos.'};
+        }
+        return {values:raw,entered:true,assumed:0,count,inferred:null};
+    }
+    const inferred=(365-sumEntered)/daysMissing;
+    if(inferred< -1e-10 || !Number.isFinite(inferred)) {
+        return {error:'Los Km ingresados superan el promedio anual posible. No se pueden completar los meses vacíos con un valor no negativo.'};
+    }
+    const value=Math.max(0,inferred);
+    return {
+        values:raw.map((k,i)=>entered[i]?k:value),
+        entered:count>0,assumed,count,inferred:value
+    };
+}
+
+// Evalúa el menor promedio mensual durante el intervalo seleccionado (años).
+// Se promedia la degradación dentro de cada mes, no se fija R(t) para todo el año.
+function leastMonthlyPower(from,to,monthlyPower,degradation=0) {
+    if(!(to>from))return null;
+    let least=null;
+    for(let month=0;month<12;month++) {
+        const monthStart=daysBeforeMonth[month]/365;
+        const monthEnd=daysBeforeMonth[month+1]/365;
+        // Para una degradación no creciente, basta evaluar la última aparición
+        // de cada mes dentro del intervalo; los años anteriores tienen mayor rendimiento.
+        const year=Math.floor(to-monthStart-1e-10);
+        if(year<0)continue;
+        const a=Math.max(from,year+monthStart);
+        const b=Math.min(to,year+monthEnd);
+        if(b<=a)continue;
+        const midpoint=(a+b)/2;
+        const r=Math.max(0,1-degradation*midpoint);
+        const power=monthlyPower[month]*r;
+        if(least===null||power<least.power) {
+            least={power,month,year:year+1};
+        }
+    }
+    return least;
+}
+
+// Validación y cálculos de cada tecnología
+function validNumber(n, minimum=0) {
+    return Number.isFinite(n)&&n>=minimum;
+}
+function validate(m, s) {
+    const d=m.data;
+    if(!validNumber(d.price))return 'Completá el precio de adquisición del equipo.';
+    if(m.type==='solar'||m.type==='wind') {
+        const seasonal=monthlyCoefficients(state.monthly[m.type]);
+        if(seasonal.error)return seasonal.error;
+    }
+    if(m.type!=='solar'&&!validNumber(d.pn, 0.000001))return 'Completá la potencia del equipo.';
+    if(m.type==='solar') {
+        if(!validNumber(s.gti)||!Number.isFinite(s.temp)||!validNumber(d.area, 0.00001)||
+           !validNumber(d.eta, 0.00001)||d.eta>100||!validNumber(d.noct)||
+           !validNumber(d.life, 0.001)||!Number.isFinite(d.gamma)) {
+            return 'Completá los datos solares y las especificaciones del panel.';
+        }
+        if(!validNumber(d.guaranteeYield, 0.000001)||d.guaranteeYield>100||
+           !validNumber(d.guaranteeYears, 0.001)) {
+            return 'Ingresá el rendimiento garantizado (%) y los años correspondientes.';
+        }
+        const da=(1-d.guaranteeYield/100)/d.guaranteeYears;
+        if(1-da*d.life<=0) {
+            return 'La recta de degradación llega a rendimiento nulo dentro de la vida útil. Revisá la garantía.';
+        }
+    }
+    if(m.type==='wind') {
+        if(!validNumber(s.windMean)||!validNumber(s.rough, 0.000001)||s.rough>=10||
+           !validNumber(d.vci)||!validNumber(d.vr, 0.001)||!validNumber(d.vco, 0.001)||
+           !(d.vci<d.vr&&d.vr<d.vco)||!validNumber(d.height, 0.001)||
+           d.height<=s.rough||!validNumber(d.life, 0.001)) {
+            return 'Completá los datos eólicos y verificá arranque, nominal y corte.';
+        }
+    }
+    if(m.type==='diesel') {
+        if(!validNumber(d.q)||!validNumber(d.hours, 0.001)||d.hours>8760||
+           !validNumber(d.maxHours, 0.001)||!validNumber(d.fuelPrice)||
+           !validNumber(d.vehiclePrice)||!validNumber(d.distance)||
+           !validNumber(d.vehicleUse)||!validNumber(d.tripVolume, 0.001)) {
+            return 'Completá consumo, horas, vida útil y transporte.';
+        }
+    }
+    return null;
+}
+
+// Potencia media de Rayleigh, con la curva cúbica de arranque a velocidad nominal.
+function meanWindPower(d,mean) {
+    if(!(mean>0))return 0;
+    const density=v=>(Math.PI*v/(2*mean*mean))*
+        Math.exp(-Math.PI*v*v/(4*mean*mean));
+    const power=v=>v<d.vci||v>=d.vco?0:v>=d.vr?d.pn:
+        d.pn*(v**3-d.vci**3)/(d.vr**3-d.vci**3);
+    // Simpson integra por separado los tramos, evitando interpolar en la velocidad nominal.
+    const integrate=(a,b)=>{
+        const slices=400;
+        const h=(b-a)/slices;
+        let total=power(a)*density(a)+power(b-1e-10)*density(b);
+        for(let i=1;i<slices;i++) {
+            const v=a+i*h;
+            total+=(i%2===0?2:4)*power(v)*density(v);
+        }
+        return total*h/3;
+    };
+    return integrate(d.vci,d.vr)+integrate(d.vr,d.vco);
+}
+
+function windProduction(m,s,coefficients) {
+    const d=m.data;
+    const mean=s.windMean*Math.log(d.height/s.rough)/Math.log(10/s.rough);
+    const monthlyPower=coefficients.map(k=>meanWindPower(d,mean*k));
+    const annual=monthlyPower.reduce((sum,p,i)=>sum+24*daysPerMonth[i]*p,0);
+    return {annual,monthlyPower};
+}
+
+function compute(m, s) {
+    const err=validate(m, s);
+    if(err)return {error:err};
+    const d=m.data;
+    let annual, life, alpha=0, degradation=0, monthPower=null, monthlyAssumed=0;
+    if(m.type==='solar') {
+        // GTI anual en kWh/m²; irradiancia estimada en W/m² durante 10 h diarias.
+        const g=s.gti*1000/(365*10);
+        const tc=s.temp+(d.noct-20)*g/800;
+        const correction=Math.max(0, 1+(d.gamma/100)*(tc-25));
+        annual=s.gti*d.area*(d.eta/100)*correction;
+        life=d.life;
+        degradation=(1-d.guaranteeYield/100)/d.guaranteeYears;
+        const seasonal=monthlyCoefficients(state.monthly.solar);
+        monthlyAssumed=seasonal.assumed;
+        // GTI_m = GTI_a * D_m/365 * Km; P_m = E_m/(24 D_m) * R(t).
+        monthPower=seasonal.values.map(k=>annual*k/8760);
+    } else if(m.type==='wind') {
+        const seasonal=monthlyCoefficients(state.monthly.wind);
+        monthlyAssumed=seasonal.assumed;
+        const wind=windProduction(m,s,seasonal.values);
+        annual=wind.annual;
+        monthPower=wind.monthlyPower;
+        life=d.life;
+    } else {
+        annual=d.pn*d.hours;
+        life=d.maxHours/d.hours;
+        alpha=(2*d.distance*d.vehicleUse/(100*d.tripVolume))*
+            (d.fuelPrice>0?d.vehiclePrice/d.fuelPrice:0);
+    }
+    if(!(annual>0)||!(life>0))return {
+        error:'La producción estimada es nula o la vida útil no es válida.'
+    };
+    // Para solar se integra R(t)=1-Da*t; para viento y diésel, producción anual constante.
+    const energy=t=>m.type==='solar'
+        ?annual*(t-degradation*t*t/2)
+        :annual*t;
+    // Qn * h_a * t * (pg + equivalente de costo de transporte por litro).
+    const cost=t=>d.price+(m.type==='diesel'
+        ?d.q*d.hours*t*(d.fuelPrice+2*d.distance*d.vehicleUse*d.vehiclePrice/(100*d.tripVolume))
+        :0);
+    const at=t=>{
+        const produced=energy(t);
+        const total=cost(t);
+        return {t, energy:produced, initial:d.price, total,
+            perKWh:produced>0?total/produced:NaN};
+    };
+    const worst=(from,to)=>monthPower
+        ?leastMonthlyPower(Math.max(0,from),Math.min(life,to),monthPower,degradation)
+        :null;
+    // Potencia media de un mes concreto. En solar R(t) se evalúa en
+    // el punto medio de ese mes: para una recta equivale a su promedio.
+    const powerInMonth=(month,year)=> {
+        if(!monthPower)return NaN;
+        const midpoint=year+(daysBeforeMonth[month]+daysPerMonth[month]/2)/365;
+        return monthPower[month]*Math.max(0,1-degradation*midpoint);
+    };
+    return {annual,life,alpha,degradation,monthlyAssumed,at,worst,powerInMonth};
+}
+
+function enteredLife(m) {
+    const d=m.data;
+    if((m.type==='solar'||m.type==='wind')&&Number.isFinite(d.life)&&d.life>0)return d.life;
+    if(m.type==='diesel'&&Number.isFinite(d.maxHours)&&d.maxHours>0&&Number.isFinite(d.hours)&&d.hours>0)return d.maxHours/d.hours;
+    return null;
+}
+function syncGraphYears() {
+    const enteredLives=state.machines.map(enteredLife).filter(x=>Number.isFinite(x)&&x>0);
+    const availableMax=Math.max(1, ...enteredLives);
+    const endWasAtMaximum=graphEnd===null||Math.abs(graphEnd-graphAvailableMax)<1e-8;
+    if(endWasAtMaximum)graphEnd=availableMax;
+    graphAvailableMax=availableMax;
+    graphStart=Math.max(0, Math.min(graphStart, availableMax));
+    graphEnd=Math.max(0, Math.min(graphEnd, availableMax));
+    const maxX=graphEnd, minX=graphStart;
+    for(const id of ['startSlider', 'endSlider']) {
+        $(id).max=String(availableMax);
+        $(id).step='0.01';
+    }
+    $('startSlider').value=String(minX);
+    $('endSlider').value=String(maxX);
+    if(document.activeElement!==$('yearStart'))$('yearStart').value=String(Number(minX.toFixed(3)));
+    if(document.activeElement!==$('yearEnd'))$('yearEnd').value=String(Number(maxX.toFixed(3)));
+    $('intervalHint').textContent=maxX>minX?`Mostrando de ${nf(minX,2)} a ${nf(maxX,2)} años (máximo disponible: ${nf(availableMax,2)}).`:'El año final debe ser mayor que el inicial.';
+}
+const colors=['#245c82', '#b16b37', '#54816c', '#765a8f', '#a64d5d', '#6a7b35', '#586d79'];
+// Resultados y tabla comparativa
+function renderResults() {
+    syncGraphYears();
+    const tbody=$('comparison').querySelector('tbody');
+    tbody.replaceChildren();
+    const plotted=[];
+    state.machines.forEach((m, i)=> {
+        const res=compute(m, state.site);
+        const box=$(`res-${m.id}`);
+        if(!box)return;
+        box.replaceChildren();
+        if(res.error) {
+            const el=document.createElement('div');
+            el.className='error';
+            el.textContent=res.error;
+            box.append(el);
+            return;
+        }
+        const metrics=document.createElement('div');
+        metrics.className='metrics';
+        const vals=[
+            [m.type==='solar'?'Producción anual sin desgaste':'Producción anual', `${nf(res.annual,1)} kWh/año`],
+            ['Vida útil', `${nf(res.life,2)} años`]
+        ];
+        const worst=res.worst(graphStart,graphEnd);
+        if(worst) {
+            vals.push(['Menor potencia media mensual (intervalo elegido)', `${nf(worst.power,4)} kW`]);
+            vals.push(['Mes más desfavorable (intervalo del gráfico)',
+                `${months[worst.month]}, año ${worst.year}`]);
+        }
+        vals.forEach(([label, val])=> {
+            const item=document.createElement('div');
+            item.className='metric';
+            const cap=document.createElement('div');
+            cap.className='caption';
+            cap.textContent=label;
+            const value=document.createElement('div');
+            value.className='value';
+            value.textContent=val;
+            item.append(cap, value);
+            metrics.append(item);
+        });
+        box.append(metrics);
+        if((m.type==='solar'||m.type==='wind')&&res.monthlyAssumed>0) {
+            const note=document.createElement('p');
+            note.className='note';
+            note.textContent=res.monthlyAssumed===12
+                ?'Sin datos estacionales: todos los Km se consideran iguales a 1.'
+                :`${res.monthlyAssumed} mes(es) sin dato: se asigna a todos el mismo Km para mantener el promedio anual.`;
+            box.append(note);
+        }
+        const tab=document.createElement('table');
+        tab.className='results-table';
+        tab.innerHTML='<thead><tr><th>Horizonte</th><th>Energía acumulada (kWh)</th><th>Costo total</th><th>Costo/kWh</th><th>Potencia mín. mensual (kW)</th></tr></thead>';
+        const body=document.createElement('tbody');
+        const horizons=[...new Set([3, 10, res.life])];
+        horizons.forEach(t=> {
+            const row=document.createElement('tr');
+            const label=Math.abs(t-res.life)<1e-8?'Vida útil':`${nf(t,2)} años`;
+            const values=t>res.life+1e-8
+                ?[label, 'Fuera de vida útil', '—', '—', '—']
+                :(()=>{
+                    const v=res.at(t);
+                    const comparisonRow=document.createElement('tr');
+                    const power=res.worst(0,t);
+                    const powerText=power?nf(power.power,4):'—';
+                    [m.data.name||`Equipo ${i+1}`, label, nf(v.energy,1), nf(v.initial), nf(v.total), nf(v.perKWh,4), powerText].forEach(x=>{
+                        const td=document.createElement('td');
+                        td.textContent=x;
+                        comparisonRow.append(td);
+                    });
+                    tbody.append(comparisonRow);
+                    return [label, nf(v.energy,1), nf(v.total), nf(v.perKWh,4), powerText];
+                })();
+            values.forEach(value=>{
+                const td=document.createElement('td');
+                td.textContent=value;
+                row.append(td);
+            });
+            body.append(row);
+        });
+        tab.append(body);
+        box.append(tab);
+        if(m.type==='solar') {
+            const p=document.createElement('p');
+            p.className='note';
+            p.textContent=`Degradación lineal estimada: ${nf(res.degradation*100,3)} puntos porcentuales/año.`;
+            box.append(p);
+        }
+        if(m.type==='diesel'&&m.data.fuelPrice>0) {
+            const p=document.createElement('p');
+            p.className='note';
+            p.textContent=`Recargo equivalente por transporte: ${nf(res.alpha*100,2)} % del costo del combustible del grupo.`;
+            box.append(p);
+        }
+        plotted.push({m, res, color:colors[i%colors.length]});
+    });
+    if(!state.machines.length) {
+        const tr=document.createElement('tr');
+        const td=document.createElement('td');
+        td.colSpan=7;
+        td.className='empty';
+        td.textContent='Agregá un equipo para comenzar.';
+        tr.append(td);
+        tbody.append(tr);
+    }
+    drawGraph(plotted);
+    drawPowerGraph(plotted);
+}
+// Ambos gráficos comparten la escala temporal y los colores de los equipos.
+function drawGraph(items) {
+    drawLineGraph(items, {
+        container:'graph', legend:'legend',
+        getY:(res,t)=>res.at(t).perKWh,
+        ceiling:graphCeiling!==null&&graphCeiling>0?graphCeiling:Infinity,
+        aria:'Costo acumulado por kWh en el intervalo seleccionado',
+        empty:'Sin datos para graficar.', decimals:2
+    });
+}
+// Segmentos mensuales sin interpolar artificialmente entre estaciones.
+// El tramo horizontal expresa Pm sobre las horas del mes correspondiente.
+function monthlyPowerSegments(res,start,end) {
+    const output=[];
+    for(let year=Math.floor(start);year<=Math.floor(end);year++) {
+        for(let month=0;month<12;month++) {
+            const monthStart=year+daysBeforeMonth[month]/365;
+            const monthEnd=year+daysBeforeMonth[month+1]/365;
+            const from=Math.max(start,monthStart);
+            const to=Math.min(end,monthEnd);
+            if(to>from)output.push({from,to,y:res.powerInMonth(month,year)});
+        }
+    }
+    return output;
+}
+function drawPowerGraph(items) {
+    drawLineGraph(items.filter(item=>item.m.type!=='diesel'), {
+        container:'powerGraph', legend:'powerLegend',
+        monthly:true,
+        ceiling:Infinity,
+        aria:'Potencia media mensual de cada equipo a lo largo del tiempo',
+        empty:'Agregá un panel solar o un aerogenerador para visualizar la potencia.',
+        decimals:4
+    });
+}
+function drawLineGraph(items, settings) {
+    const root=$(settings.container), legend=$(settings.legend);
+    root.replaceChildren();
+    legend.replaceChildren();
+    if(!items.length||graphEnd<=graphStart) {
+        const p=document.createElement('p');
+        p.className='empty';
+        p.textContent=!items.length?settings.empty:'Seleccioná un intervalo válido.';
+        root.append(p);
+        return;
+    }
+    const W=900, H=300;
+    const margin={l:83,r:20,t:17,b:45};
+    const pw=W-margin.l-margin.r, ph=H-margin.t-margin.b;
+    const start=Math.max(settings.monthly?0:0.0001,graphStart);
+    const ceiling=settings.ceiling;
+    const segmentsByItem=new Map();
+    let visibleMax=0;
+    for(const item of items) {
+        const end=Math.min(graphEnd,item.res.life);
+        if(end<=start)continue;
+        if(settings.monthly) {
+            const segments=monthlyPowerSegments(item.res,start,end);
+            segmentsByItem.set(item.res,segments);
+            for(const {y} of segments) {
+                if(Number.isFinite(y)&&y>=0&&y<=ceiling)visibleMax=Math.max(visibleMax,y);
+            }
+        } else {
+            for(let j=0;j<=250;j++) {
+                const t=start+(end-start)*j/250;
+                const y=settings.getY(item.res,t);
+                if(Number.isFinite(y)&&y>=0&&y<=ceiling)visibleMax=Math.max(visibleMax,y);
+            }
+        }
+    }
+    let maxY=visibleMax>0?visibleMax*1.07:1;
+    if(Number.isFinite(ceiling))maxY=Math.min(maxY,ceiling);
+    if(!(maxY>0))maxY=1;
+    const sx=t=>margin.l+pw*(t-graphStart)/(graphEnd-graphStart);
+    const sy=y=>margin.t+ph*(1-y/maxY);
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    svg.setAttribute('role','img');
+    svg.setAttribute('aria-label',settings.aria);
+    const node=(tag,attrs,txt)=>{
+        const element=document.createElementNS(svg.namespaceURI,tag);
+        for(const [name,value] of Object.entries(attrs))element.setAttribute(name,value);
+        if(txt!==undefined)element.textContent=txt;
+        svg.append(element);
+        return element;
+    };
+    for(let j=0;j<=4;j++) {
+        const y=maxY*j/4;
+        node('line',{x1:margin.l,y1:sy(y),x2:W-margin.r,y2:sy(y),stroke:'#e4e8eb'});
+        node('text',{x:margin.l-9,y:sy(y)+4,'text-anchor':'end',
+            'font-size':11,fill:'#647381'},nf(y,settings.decimals));
+    }
+    for(let j=0;j<=5;j++) {
+        const x=graphStart+(graphEnd-graphStart)*j/5;
+        node('text',{x:sx(x),y:H-21,'text-anchor':'middle',
+            'font-size':11,fill:'#647381'},nf(x,2));
+    }
+    node('text',{x:W/2,y:H-3,'text-anchor':'middle',
+        'font-size':12,fill:'#526271'},'Años');
+    for(const {m,res,color} of items) {
+        const end=Math.min(graphEnd,res.life);
+        if(end<=start)continue;
+        let segment=[];
+        let shown=false;
+        const flush=()=>{
+            if(segment.length>1) {
+                node('polyline',{points:segment.join(' '),fill:'none',
+                    stroke:color,'stroke-width':2.5});
+                shown=true;
+            }
+            segment=[];
+        };
+        if(settings.monthly) {
+            let previousEnd=null;
+            let previousY=null;
+            for(const {from,to,y} of segmentsByItem.get(res)||[]) {
+                if(!Number.isFinite(y)||y<0||y>ceiling) {
+                    flush();
+                    previousEnd=null;
+                    previousY=null;
+                    continue;
+                }
+                if(previousEnd===null||Math.abs(from-previousEnd)>1e-8) {
+                    flush();
+                    segment.push(`${sx(from).toFixed(2)},${sy(y).toFixed(2)}`);
+                } else if(Math.abs(previousY-y)>1e-10) {
+                    // Cambio vertical entre los promedios de dos meses consecutivos.
+                    segment.push(`${sx(from).toFixed(2)},${sy(y).toFixed(2)}`);
+                }
+                segment.push(`${sx(to).toFixed(2)},${sy(y).toFixed(2)}`);
+                previousEnd=to;
+                previousY=y;
+            }
+        } else {
+            for(let j=0;j<=600;j++) {
+                const t=start+(end-start)*j/600;
+                const y=settings.getY(res,t);
+                if(!Number.isFinite(y)||y<0||y>ceiling) {
+                    flush();
+                    continue;
+                }
+                segment.push(`${sx(t).toFixed(2)},${sy(y).toFixed(2)}`);
+            }
+        }
+        flush();
+        if(shown) {
+            const entry=document.createElement('span');
+            const sw=document.createElement('span');
+            sw.className='swatch';
+            sw.style.background=color;
+            entry.append(sw,document.createTextNode(m.data.name||m.type));
+            legend.append(entry);
+        }
+    }
+    root.append(svg);
+}
+// Eventos de la interfaz
+$('addButton').onclick=()=>makeMachine($('newType').value);
+for(const [id, which] of [['startSlider', 'start'], ['endSlider', 'end'], ['yearStart', 'start'], ['yearEnd', 'end']]) {
+    $(id).addEventListener('input', e=> {
+        const val=Number(e.target.value); if(e.target.value===''||!Number.isFinite(val))return; if(which==='start')graphStart=val; else graphEnd=val; renderResults();
+    });
+}
+$('graphCeiling').addEventListener('input', e=> {
+    const value=e.target.value.trim(); graphCeiling=value!==''&&Number(value)>0?Number(value):null; renderResults();
+});
+$('pdfButton').onclick=()=>{
+    const panels=[...document.querySelectorAll('.monthly-details')];
+    const previouslyOpen=panels.map(d=>d.open);
+    panels.forEach(d=>d.open=true);
+    const restore=()=>{
+        panels.forEach((d,i)=>d.open=previouslyOpen[i]);
+        window.removeEventListener('afterprint',restore);
+    };
+    window.addEventListener('afterprint',restore);
+    window.print();
+};
+// Guardado, carga e impresión
+$('saveButton').onclick=()=> {
+    const blob=new Blob([JSON.stringify({
+        version:4, ...state
+    }, null, 2)], {
+        type:'application/json'
+    });
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='comparacion_energetica.json';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+$('loadButton').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=async e=> {
+    const f=e.target.files?.[0];
+    if(!f)return;
+    try {
+        const x=JSON.parse(await f.text());
+        if(!x||!x.site||!Array.isArray(x.machines)||x.machines.some(m=>!schemas[m.type]||!m.data))throw Error('Formato incorrecto');
+        // Las comparaciones anteriores guardaban Km dentro de cada equipo.
+        // En ese caso tomamos la primera serie aportada para cada tecnología.
+        const monthly={solar:emptyMonthly(),wind:emptyMonthly()};
+        for(const type of ['solar','wind']) {
+            const saved=x.monthly?.[type];
+            const previous=x.machines.find(m=>m.type===type&&monthKeys.some(k=>m.data[k]!==null&&m.data[k]!==undefined&&m.data[k]!==''));
+            const source=saved&&typeof saved==='object'?saved:previous?.data;
+            if(source)for(const key of monthKeys) {
+                const value=source[key];
+                monthly[type][key]=value===undefined||value===null||value===''?null:Number(value);
+            }
+        }
+        state= {
+            monthly,
+            site: {
+                ...Object.fromEntries(siteSchema.map(s=>[s[0], null])), ...Object.fromEntries(siteSchema.filter(([key])=>Object.prototype.hasOwnProperty.call(x.site,key)).map(([key])=>[key,x.site[key]]))
+            }, machines:x.machines.map((m, i)=>({
+                id:i+1, type:m.type, data: {
+                    ...Object.fromEntries(schemas[m.type].map(s=>[s[0], null])), ...m.data, ...(m.type==='diesel'?Object.fromEntries(['fuelPrice', 'vehiclePrice', 'distance', 'vehicleUse', 'tripVolume'].filter(k=>m.data[k]===undefined&&x.site[k]!==undefined).map(k=>[k, x.site[k]])): {
+                    })
+                }
+            })), nextId:x.machines.length+1, serials: {
+                solar:0, wind:0, diesel:0
+            }
+        };
+        for(const m of state.machines) {
+            const pattern=new RegExp('^'+typeNames[m.type]+' (\\d+)$');
+            const match=String(m.data.name||'').match(pattern);
+            if(match)state.serials[m.type]=Math.max(state.serials[m.type], Number(match[1]));
+        }
+        const used=new Set();
+        for(const m of state.machines) {
+            let key=normalizedName(m.data.name);
+            if(!key||used.has(key)) {
+                do {
+                    state.serials[m.type]++;
+                    m.data.name=`${typeNames[m.type]} ${state.serials[m.type]}`;
+                    key=normalizedName(m.data.name);
+                }
+                while(used.has(key));
+            }
+            used.add(key);
+        }
+        graphStart=0;
+        graphEnd=null;
+        graphAvailableMax=1;
+        renderBase();
+        renderMachines();
+    } catch(err) {
+        alert('No se pudo abrir la comparación: '+err.message);
+    } finally {
+        e.target.value='';
+    }
+};
+renderBase();
+renderMachines();
+</script>
+</body></html>
